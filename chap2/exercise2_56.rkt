@@ -1,5 +1,23 @@
 #lang sicp
 
+; Accumulates elements of sequence using specified operation.
+;
+; Accumulate operation is defined as follows:
+; (accumulate op initial (list e1 e2)) == (op e1 (op e2 initial))
+;
+; Parameters:
+; op - operation that accumulates sequence elements
+; initial - initial accumulate value
+; sequence - list of elements
+;
+; Returns:
+; accumulated sequence
+(define (accumulate op initial sequence)
+  (if (null? sequence)
+      initial
+      (op (car sequence)
+          (accumulate op initial (cdr sequence)))))
+
 ; Checks if argument is a variable.
 ;
 ; Parameters:
@@ -88,7 +106,14 @@
 ; Returns:
 ; second expression of a sum
 (define (augend s)
-   (caddr s))
+  (if (null? (cdddr s))
+      (caddr s)
+      (accumulate make-sum 0 (cddr s))))
+
+(equal? (augend '(+ x 10)) 10)
+(equal? (augend '(+ x (+ x 15))) '(+ x 15))
+(equal? (augend '(+ x x 15)) '(+ x 15))
+(equal? (augend '(+ x x x x 15)) '(+ x (+ x (+ x 15))))
 
 ; Checks if expression is a product.
 ;
@@ -118,7 +143,14 @@
 ; Returns:
 ; second multiplied expression in product
 (define (multiplicand p)
-  (caddr p))
+  (if (null? (cdddr p))
+      (caddr p)
+      (accumulate make-product 1 (cddr p))))
+
+(equal? (multiplicand '(* x 10)) 10)
+(equal? (multiplicand '(* x (+ x 15))) '(+ x 15))
+(equal? (multiplicand '(* x x 15)) '(* x 15))
+(equal? (multiplicand '(* x x x x 15)) '(* x (* x (* x 15))))
 
 ; Constructs exponentiation with base to the specified power.
 ;
@@ -191,3 +223,5 @@
 
 (equal? (deriv '(** x 1) 'x) 1)
 (equal? (deriv '(** x 3) 'x) '(* 3 (** x 2)))
+(equal? (deriv '(+ (+ x 10) x) 'x) 2)
+(equal? (deriv '(+ (* x 10) x) 'x) 11)
