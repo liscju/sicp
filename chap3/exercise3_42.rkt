@@ -1,8 +1,17 @@
 #lang sicp
+(#%require (only racket/base error))
+(#%require (only racket/base thread-wait thread))
 
-; Quote from http://community.schemewiki.org/?sicp-ex-3.42
-;
-;  It's safe to do that change. There is nothing different about
-; concurrency in these two version. The only difference is new one
-; serialize the procedures before call the functions, but the original
-; one do it when call withdraw or deposit.  
+
+(define (parallel-execute . procs)
+  (map thread-wait
+       (map (lambda (proc) (thread proc))
+            procs)))
+
+
+(define x 10)
+;(parallel-execute
+; (lambda () (set! x (* x x)))
+; (lambda () (set! x (+ x 1))))
+
+(parallel-execute (lambda () (display "A")) (lambda() (display "B")))
